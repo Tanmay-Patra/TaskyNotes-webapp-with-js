@@ -70,6 +70,7 @@ const htmlModalContent = ({ id, title, description, url }) => {
   	`;
 };
 
+// Here we convert json to string for local storage
 const updateLocalStorage = () => {
 	localStorage.setItem(
     	"task",
@@ -77,4 +78,44 @@ const updateLocalStorage = () => {
     		tasks: state.taskList,
     	})
   	);
+};
+
+// Here we convert string to json to render the cards on screen
+const loadInitialData = () => {
+	const localStorageCopy = JSON.parse(localStorage.task);
+
+	if (localStorageCopy) state.taskList = localStorageCopy.tasks;
+
+	state.taskList.map((cardDate) => {
+    	taskContents.insertAdjacentHTML("beforeend", htmlTaskContent(cardDate));
+	});
+};
+
+// To save when we edit the card
+const handleSubmit = (event) => {
+	const id = `${Date.now()}`;
+
+	// Getting things from screen to js file
+	const input = {
+		// Now below line is stored in input.url
+    	url: document.getElementById("imageUrl").value,
+    	title: document.getElementById("taskTitle").value,
+	    type: document.getElementById("tags").value,
+    	description: document.getElementById("taskDescription").value,
+  	};
+
+	if (input.title === "" || input.tags === "" || input.taskDescription === "") {
+    	return alert("Please fill all the necessary fields");
+  	}
+
+	// Things displayed on screen
+	taskContents.insertAdjacentHTML(
+    	"beforeend",
+    	htmlTaskContent({ ...input, id })
+  	);
+
+	// Storing in the array
+  	state.taskList.push({ ...input, id });
+	
+  	updateLocalStorage();
 };
